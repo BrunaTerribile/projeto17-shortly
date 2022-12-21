@@ -16,7 +16,7 @@ export async function shortener(req, res){
         const session = await connectionDB.query(`
             SELECT * FROM sessions WHERE token = $1`, [token]);
         if(session.rowCount == 0){
-            res.sendStatus(401)
+            return res.sendStatus(401)
         }
         
         const userId = session.rows[0].id  
@@ -31,11 +31,24 @@ export async function shortener(req, res){
         console.log(err);
         return res.sendStatus(500);
     }
-
 }
 
 export async function getUrl(req, res){
+    const id = req.params.id
 
+    try {
+        const urlExist = await connectionDB.query(`
+            SELECT id, "shortUrl", url 
+            FROM urls WHERE id = $1`, [id]);
+        if(urlExist.rowCount == 0){
+            return res.sendStatus(404)
+        }
+
+        res.status(200).send(urlExist.rows[0])
+    } catch(err){
+        console.log(err);
+        return res.sendStatus(500);
+    }
 }
 
 export async function goToUrl(req, res){
