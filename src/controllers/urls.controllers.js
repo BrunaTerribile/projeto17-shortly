@@ -52,7 +52,30 @@ export async function getUrl(req, res){
 }
 
 export async function goToUrl(req, res){
+    const shortUrl = req.params.shortUrl
 
+    try {
+        const findUrl = await connectionDB.query(`
+            SELECT id, url, "visitCount" 
+            FROM urls WHERE "shortUrl" = $1`, [shortUrl]);
+        if(findUrl.rowCount == 0){
+            return res.sendStatus(404)
+        }
+
+        const urlData = findUrl.rows[0]
+        const visitCount = (urlData.visitCount) + 1
+
+        const addVisit = await connectionDB.query(`
+            UPDATE urls 
+            SET "visitCount" = $1
+            WHERE id = $2`, 
+            [visitCount, urlData.id]);
+
+        res.redirect(urlData.url)
+    } catch(err){
+        console.log(err);
+        return res.sendStatus(500);
+    }
 }
 
 export async function deleteUrl(req, res){
