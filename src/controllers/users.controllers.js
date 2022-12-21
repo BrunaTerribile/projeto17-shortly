@@ -1,5 +1,5 @@
 import connectionDB from "../database/db.js";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
 
 export async function SignUp(req, res){
@@ -12,7 +12,7 @@ export async function SignUp(req, res){
             INSERT INTO users (name, email, password, "createdAt")
             VALUES ($1, $2, $3, $4)`,
             [name, email, hashPassword, createdAt]);
-        res.status(201).send(result)
+        res.sendStatus(201)
     } catch(err){
         console.log(err);
         res.sendStatus(500);
@@ -29,7 +29,7 @@ export async function SignIn(req, res){
         if(userExist.rowCount == 0) {
             return res.status(401).send("Email não encontrado")
         }
-        
+
         const passwordOk = bcrypt.compareSync(password, userExist.rows[0].password); //verifica se a senha foi preenchida corretamente
         if(!passwordOk) {
             return res.sendStatus(401)
