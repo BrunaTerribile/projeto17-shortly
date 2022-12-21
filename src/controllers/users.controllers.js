@@ -35,7 +35,12 @@ export async function SignIn(req, res){
             return res.sendStatus(401)
         }
 
-    res.send({ token })
+        const addSession = connectionDB.query(`
+            INSERT INTO sessions (token, "userId")
+            VALUES ($1, $2)`, [token, userExist.rows[0].id]
+        );
+
+    res.send(token).status(200)
     } catch (err) {
         console.log(err)
         res.sendStatus(500)
