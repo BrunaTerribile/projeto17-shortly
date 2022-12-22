@@ -8,19 +8,13 @@ export async function sessionValidation(req, res, next){
         return res.sendStatus(401);
     }
 
-    try{
-        const session = await connectionDB.query(`
-            SELECT * FROM sessions WHERE token = $1`, [token]);
-        if(session.rowCount == 0){
-            return res.sendStatus(401)
-        }
-        
-        const userId = session.rows[0].id  
-    } catch(err){
-        console.log(err);
-        return res.sendStatus(500);
+    const session = await connectionDB.query(`
+        SELECT "userId" FROM sessions WHERE token = $1`, [token]);
+    if(session.rowCount == 0){
+        return res.sendStatus(401)
     }
-
-    res.locals() //enviar userId encontrado
+        
+    const userId = session.rows[0].userId
+    req.user = userId//envia userId encontrado
     next();
 }

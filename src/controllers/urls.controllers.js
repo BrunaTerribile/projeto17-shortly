@@ -2,16 +2,16 @@ import connectionDB from "../database/db.js";
 import { nanoid } from "nanoid";
 
 export async function shortener(req, res){
-    //receber userId do middleware
-
+    //recebe userId do middleware:
+    const userId = req.user;
     const { url } = req.body;
     const shortUrl = nanoid(10);
 
     try {
         const addUrl = await connectionDB.query(`
-            INSERT INTO urls (url, "userId", "shortUrl", "visitCount")
+            INSERT INTO urls ("userId", url, "shortUrl", "visitCount")
             VALUES ($1, $2, $3, $4)`, 
-            [url, userId, shortUrl, 0]);
+            [userId, url, shortUrl, 0]);
 
         res.status(201).send({shortUrl})
     } catch (err){
@@ -67,6 +67,7 @@ export async function goToUrl(req, res){
 
 export async function deleteUrl(req, res){
     //receber userId do middleware
+    const userId = req.user;
     const urlId = req.params.id;
 
     try {
