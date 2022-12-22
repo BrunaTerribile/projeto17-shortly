@@ -5,7 +5,7 @@ export async function userValidation (req, res, next){
     const user = req.body;
 
     try{
-        const userExist = await connectionDB.query(`SELECT * FROM users WHERE email = $1`, [user.email])
+        const userExist = await connectionDB.query(`SELECT * FROM users WHERE email = $1`, [ user.email ])
         if(userExist.rowCount !== 0){ //verifica se este email já está sendo usado
             return res.status(409).send("Esse email já está cadastrado");
         }
@@ -20,6 +20,6 @@ export async function userValidation (req, res, next){
         res.sendStatus(500);
     }
 
-    req.user = user;
+    res.locals.user = user;
     next();
 }

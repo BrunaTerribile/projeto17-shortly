@@ -3,15 +3,15 @@ import * as bcrypt from "bcrypt";
 import { v4 as uuidV4 } from "uuid";
 
 export async function SignUp(req, res){
-    const {name, email, password, createdAt} = req.body
+    const {name, email, password} = res.locals.user
 
     try{
         const hashPassword = bcrypt.hashSync(password, 10) //criptografa a senha do usuário
 
         const result = await connectionDB.query(`
-            INSERT INTO users (name, email, password, "createdAt")
-            VALUES ($1, $2, $3, $4)`,
-            [name, email, hashPassword, createdAt]);
+            INSERT INTO users (name, email, password)
+            VALUES ($1, $2, $3)`,
+            [name, email, hashPassword]);
         res.sendStatus(201)
     } catch(err){
         console.log(err);

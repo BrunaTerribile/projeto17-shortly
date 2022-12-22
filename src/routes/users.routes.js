@@ -5,6 +5,6 @@ import { userValidation } from "../middlewares/users.middleware.js";
 const router = Router();
 
 router.post("/signup", userValidation, SignUp);
-router.post("/signin", userValidation, SignIn);
+router.post("/signin", SignIn);
 
 export default router;
