@@ -2,25 +2,12 @@ import connectionDB from "../database/db.js";
 import { nanoid } from "nanoid";
 
 export async function shortener(req, res){
-    const { authorization } = req.headers;
-    const token = authorization?.replace("Bearer ", "");
+    //receber userId do middleware
 
     const { url } = req.body;
     const shortUrl = nanoid(10);
 
-    if(!token) {
-        return res.sendStatus(401);
-    }
-
     try {
-        const session = await connectionDB.query(`
-            SELECT * FROM sessions WHERE token = $1`, [token]);
-        if(session.rowCount == 0){
-            return res.sendStatus(401)
-        }
-        
-        const userId = session.rows[0].id  
-
         const addUrl = await connectionDB.query(`
             INSERT INTO urls (url, "userId", "shortUrl", "visitCount")
             VALUES ($1, $2, $3, $4)`, 
@@ -79,23 +66,10 @@ export async function goToUrl(req, res){
 }
 
 export async function deleteUrl(req, res){
-    const { authorization } = req.headers;
-    const token = authorization?.replace("Bearer ", "");
+    //receber userId do middleware
     const urlId = req.params.id;
 
-    if(!token) {
-        return res.sendStatus(401);
-    }
-
     try {
-        const session = await connectionDB.query(`
-            SELECT * FROM sessions WHERE token = $1`, [token]);
-        if(session.rowCount == 0){
-            return res.sendStatus(401)
-        }
-
-        const userId = session.rows[0].userId
-
         const isUserUrl = await connectionDB.query(`
             SELECT * FROM urls WHERE "userId" = $1 AND id = $2`,
             [userId, urlId]);
