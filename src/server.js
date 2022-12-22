@@ -12,5 +12,5 @@ app.use(cors());
 app.use(usersRoutes);
 app.use(urlsRoutes);
 
-const port = process.env.PORT;
+const port = process.env.PORT || 4000;
 app.listen(port, ()=> console.log(`Server running in port: ${port}`));
