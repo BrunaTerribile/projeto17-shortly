@@ -48,3 +48,23 @@ export async function SignIn(req, res){
         res.sendStatus(500)
     }
 }
+
+export async function getUserUrls(req, res){
+    const userId = req.user;
+
+    try {
+        const result = await connectionDB.query(`
+        SELECT u.id, u.name, SUM(r."visitCount") AS count,
+        json_build_object('id', r.id, 'shortUrl', r."shortUrl", 'url', r.url, 'visitCount', r."visitCount") as "shortenedUrls"
+        FROM users AS u
+        JOIN urls AS r
+        ON r."userId" = u.id
+        WHERE u.id = $1
+        GROUP BY u.id, r.id`, [userId]);
+
+        res.send(result.rows).status(200)
+    } catch(err){
+        console.log(err)
+        res.sendStatus(500)
+    }
+}
