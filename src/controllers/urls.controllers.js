@@ -44,7 +44,8 @@ export async function goToUrl(req, res){
     try {
         const findUrl = await connectionDB.query(`
             SELECT id, url, "visitCount" 
-            FROM urls WHERE "shortUrl" = $1`, [shortUrl]);
+            FROM urls 
+            WHERE "shortUrl" = $1`, [shortUrl]);
         if(findUrl.rowCount == 0){
             return res.sendStatus(404)
         }
@@ -72,7 +73,8 @@ export async function deleteUrl(req, res){
 
     try {
         const isUserUrl = await connectionDB.query(`
-            SELECT * FROM urls WHERE "userId" = $1 AND id = $2`,
+            SELECT * FROM urls 
+            WHERE "userId" = $1 AND id = $2`,
             [userId, urlId]);
         if(isUserUrl.rowCount == 0){
             return res.sendStatus(401)

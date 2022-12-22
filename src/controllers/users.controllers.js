@@ -54,13 +54,13 @@ export async function getUserUrls(req, res){
 
     try {
         const result = await connectionDB.query(`
-        SELECT u.id, u.name, SUM(r."visitCount") AS count,
-        json_build_object('id', r.id, 'shortUrl', r."shortUrl", 'url', r.url, 'visitCount', r."visitCount") as "shortenedUrls"
+        SELECT u.id, u.name, CAST(SUM(r."visitCount") AS int) AS "visitCount",
+        json_agg(json_build_object('id', r.id, 'shortUrl', r."shortUrl", 'url', r.url, 'visitCount', r."visitCount")::jsonb) AS "shortenedUrls"
         FROM users AS u
         JOIN urls AS r
         ON r."userId" = u.id
         WHERE u.id = $1
-        GROUP BY u.id, r.id`, [userId]);
+        GROUP BY u.id`, [userId]);
 
         res.send(result.rows).status(200)
     } catch(err){
@@ -72,14 +72,15 @@ export async function getUserUrls(req, res){
 export async function getRanking(req, res){
     try {
         const ranking = await connectionDB.query(`
-            SELECT u.id, u.name, COUNT(r."userId") as "linksCount", SUM(r."visitCount") as "visitCount"
+            SELECT u.id, u.name, 
+            COUNT(r."userId") as "linksCount", 
+            SUM(r."visitCount") as "visitCount"
             FROM users AS u
             LEFT JOIN urls AS r
             ON r."userId" = u.id
             GROUP BY u.id
             ORDER BY "visitCount" DESC
-            LIMIT 10
-        `)
+            LIMIT 10`)
 
         res.send(ranking.rows).status(200)
     } catch(err){
