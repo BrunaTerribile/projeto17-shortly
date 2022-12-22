@@ -79,5 +79,36 @@ export async function goToUrl(req, res){
 }
 
 export async function deleteUrl(req, res){
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+    const urlId = req.params.id;
 
+    if(!token) {
+        return res.sendStatus(401);
+    }
+
+    try {
+        const session = await connectionDB.query(`
+            SELECT * FROM sessions WHERE token = $1`, [token]);
+        if(session.rowCount == 0){
+            return res.sendStatus(401)
+        }
+
+        const userId = session.rows[0].userId
+
+        const isUserUrl = await connectionDB.query(`
+            SELECT * FROM urls WHERE "userId" = $1 AND id = $2`,
+            [userId, urlId]);
+        if(isUserUrl.rowCount == 0){
+            return res.sendStatus(401)
+        }
+
+        const result = await connectionDB.query(`
+            DELETE FROM urls WHERE id = $1`, [urlId]);
+
+        res.sendStatus(204)
+    } catch (err){
+        console.log(err);
+        return res.sendStatus(500);
+    }
 }
