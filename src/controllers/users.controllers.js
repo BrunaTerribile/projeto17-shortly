@@ -77,10 +77,11 @@ export async function getRanking(req, res){
             LEFT JOIN urls AS r
             ON r."userId" = u.id
             GROUP BY u.id
-            ORDER BY "visitCount"
+            ORDER BY "visitCount" DESC
+            LIMIT 10
         `)
 
-        res.send(ranking.rows)
+        res.send(ranking.rows).status(200)
     } catch(err){
         console.log(err)
         res.sendStatus(500)
